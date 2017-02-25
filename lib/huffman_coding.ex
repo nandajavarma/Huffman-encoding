@@ -94,12 +94,8 @@ defmodule HuffmanCoding do
 
   def create_huffman_tree(hmap, heap) do
     {new_heap, min} = remove_from_heap(heap)
-    if new_heap == {} do
       new_val = hmap['val'] + elem(min, 1)
       create_huffman_tree(%{'val' => new_val, 'right' => hmap, 'left' => min}, new_heap)
-    else
-      create_huffman_tree(hmap, new_heap)
-    end
   end
 
   def create_huffman_tree(heap) do
@@ -114,4 +110,25 @@ defmodule HuffmanCoding do
     {%{'val' => new_val, 'left' => min1, 'right' => min2}, Tuple.delete_at(new_heap, 0)}
   end
 
+  def encode(tree, huff \\ %{}, code \\"")
+  def encode({a, _b}, huff, code) do
+    nmap = Map.put(huff, a, code)
+    code = case String.length(code) >= 2 do
+      true -> String.slice(code, 0..String.length(code)-2)
+      _ -> ""
+    end
+    {nmap, code}
+  end
+
+  def encode(nil, huff, code), do: {huff, code}
+  def encode(tree, huff, code) do
+    {huff, code} = encode(Map.get(tree, 'left'), huff, "#{code}0")
+    {huff, code} = encode(Map.get(tree, 'right'), huff, "#{code}1")
+    encode(nil, huff, code)
+  end
+
+  def huffman_coding(text) do
+    code = text |> frequency |> heapify |> create_huffman_tree |> encode |> elem(0)
+    code
+  end
 end
